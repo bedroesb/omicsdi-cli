@@ -1,2 +1,5 @@
-# omicsdi-cli
-Command line interface to fetch data from OmicsDI
+# OmicsDi-CLI
+
+Command Line Interface to fetch data from OmicsDI
+
+
