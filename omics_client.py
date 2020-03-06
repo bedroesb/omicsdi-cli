@@ -68,7 +68,7 @@ class OmcicsClient:
                 
                 for ftp_file in files:
                     print("Downloading...  " + ftp_file)
-                    file_path = url_path_join(output, acc_number, ftp_file)
+                    file_path = url_path_join(dir_path, ftp_file)
                     localfile = open(file_path, 'wb')
                     ftp.retrbinary(
                         "RETR " + ftp_file, localfile.write)

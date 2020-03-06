@@ -29,7 +29,7 @@ def ftp_links(source, acc):
     help='Use this flag to download the files in the current directory',
 )
 @click.option(
-    '--output', '-o',  default='/',  type=click.Path(exists=True),
+    '--output', '-o',  default=None,  type=click.Path(exists=True),
     help='Output file (default: stdout)',
 )
 def main(acc_number, download, output):
