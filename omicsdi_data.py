@@ -1,5 +1,6 @@
 import click
 from omics_client import OmcicsClient
+import os
 
 client = OmcicsClient()
 
@@ -27,23 +28,29 @@ def ftp_links(source, acc):
     '--download', '-d',  is_flag=True,
     help='Use this flag to download the files in the current directory',
 )
-def main(acc_number):
+@click.option(
+    '--output', '-o',  default='/',  type=click.Path(exists=True),
+    help='Output file (default: stdout)',
+)
+def main(acc_number, download, output):
     """
 \b
-   ____            _          _____ _____    _____ _      _____ 
-  / __ \          (_)        |  __ \_   _|  / ____| |    |_   _|
- | |  | |_ __ ___  _  ___ ___| |  | || |   | |    | |      | |  
- | |  | | '_ ` _ \| |/ __/ __| |  | || |   | |    | |      | |  
- | |__| | | | | | | | (__\__ \ |__| || |_  | |____| |____ _| |_ 
-  \____/|_| |_| |_|_|\___|___/_____/_____|  \_____|______|_____|
+   ___        _       ___  _     ___ _    ___ 
+  / _ \ _ __ (_)__ __|   \(_)   / __| |  |_ _|
+ | (_) | '  \| / _(_-< |) | |  | (__| |__ | | 
+  \___/|_|_|_|_\__/__/___/|_|   \___|____|___|                                           
 \b                                                   
-
-    A little OmicsDI data fetcher tool.
+    A little OmicsDi data fetcher tool.
     """
+
     source = source_from_id(acc_number)
-    ftp = ftp_links(source, acc_number)
-    output = '\n'.join(ftp)
-    print(output)
+    ftps = ftp_links(source, acc_number)
+
+    if download:
+        client.download_files(ftps[0], output, acc_number)
+    else:
+        pretty = '\n'.join(ftps)
+        print(pretty)
 
 
 if __name__ == "__main__":
