@@ -5,6 +5,7 @@ from urllib3.util.retry import Retry
 import time
 import re
 
+
 def url_path_join(*args):
     """Join path(s) in URL using slashes"""
     return '/'.join(s.strip('/') for s in args)
@@ -23,9 +24,7 @@ class OmcicsClient:
         return self.fetch_object(f'/ws/dataset/{source}/{acc_numb}')
 
     def fetch_object(self, path: str) -> dict:
-        """
-        
-        """
+        """API object fetcher"""
         url = url_path_join(self.endpoint, path)
         session = requests.Session()
         retry = Retry(connect=3, backoff_factor=15)
