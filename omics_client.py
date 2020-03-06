@@ -18,7 +18,6 @@ def url_path_join(*args):
 class OmcicsClient:
     def __init__(self):
         self.endpoint = 'https://www.omicsdi.org:443/'
-        self.ftp = 'ftp.ebi.ac.uk'
 
     def get_source(self, acc_numb):
         """"Get source from Id"""
@@ -54,8 +53,9 @@ class OmcicsClient:
 
         split_url = urlsplit(url)
         clean_path = "".join(split_url.path.rpartition("/")[:-1])
+        ftp_url = split_url.hostname
         
-        with ftplib.FTP(self.ftp) as ftp:
+        with ftplib.FTP(ftp_url) as ftp:
             try:
                 ftp.login()
                 ftp.cwd(clean_path)
