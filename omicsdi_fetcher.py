@@ -1,5 +1,5 @@
 import click
-from omics_client import OmcicsClient, url_path_join
+from omicsdi_client import OmcicsClient, url_path_join
 import os
 from urllib.parse import urlsplit
 import shutil

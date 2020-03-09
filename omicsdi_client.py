@@ -65,6 +65,8 @@ class OmcicsClient:
 
             except ftplib.all_errors as e:
                 print('--> FTP error:', e)
+                print('--> Please check if ' + filename +
+                      ' exists in ' + project_dir + ' on the domain ' + domain)
 
     def download_http_files(self, file_url, filename, dir_path):
         """Download http files in given directory"""
@@ -76,4 +78,4 @@ class OmcicsClient:
 
         except urllib.request.HTTPError as e:
             print('-->', e)
-            print('--> Please check if ' + file_url + 'is reachable.')
+            print('--> Please check if ' + file_url + ' is reachable.')
