@@ -2,12 +2,12 @@ import json
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import urllib.request
 import ftplib
 import time
 import re
-import shutil
-from urllib.parse import urlsplit
 import os
+import shutil
 
 
 def url_path_join(*args):
@@ -15,16 +15,6 @@ def url_path_join(*args):
 
     return '/'.join(s.strip('/') for s in args)
 
-def url_process(url):
-    if not '://' in url:
-        if url.startswith('ftp.'):
-            newurl = 'ftp://' + url
-            return newurl
-        else:
-            newurl = 'https://' + url
-            return newurl
-    else:
-        return url
 
 class OmcicsClient:
     def __init__(self):
@@ -59,45 +49,28 @@ class OmcicsClient:
             raise RuntimeError("Non-200 status code")
         return r.json()
 
-    def download_files(self, url, output, acc_number):
-        """Download files in given directory"""
+    def download_ftp_files(self, domain, project_dir, dir_path, filename):
+        """Download ftp files in given directory"""
 
-        split_url = urlsplit(url_process(url))
-        project_dir = "".join(split_url.path.rpartition("/")[:-1])
-        domain = split_url.hostname
-        scheme = split_url.scheme
+        with ftplib.FTP(domain) as ftp:
+            try:
+                ftp.login()
+                ftp.cwd(project_dir)
+                files = ftp.nlst()
+                print("Downloading...  " + filename)
+                file_path = url_path_join(dir_path, filename)
+                localfile = open(file_path, 'wb')
+                ftp.retrbinary(
+                    "RETR " + filename, localfile.write)
+                localfile.close()
 
+
+            except ftplib.all_errors as e:
+                print('FTP error:', e)
         
-        if scheme == 'ftp':
-            with ftplib.FTP(domain) as ftp:
-                try:
-                    ftp.login()
-                    ftp.cwd(project_dir)
-                    if output:
-                        dir_path = url_path_join(output, acc_number)
-                    else:
-                        dir_path = acc_number
-
-                    if os.path.exists(dir_path):
-                        shutil.rmtree(dir_path)
-                    os.makedirs(dir_path)
-                    files = ftp.nlst()
-                    
-                    for ftp_file in files:
-                        print("Downloading...  " + ftp_file)
-                        file_path = url_path_join(dir_path, ftp_file)
-                        localfile = open(file_path, 'wb')
-                        ftp.retrbinary(
-                            "RETR " + ftp_file, localfile.write)
-                        localfile.close()
-
-
-                except ftplib.all_errors as e:
-                    print('FTP error:', e)
+    def download_http_files(self, file_url, filename, dir_path):
+        """Download http files in given directory"""
         
-        elif scheme == 'https' or scheme == 'http':
-            
-
-        else:
-            print('Scheme is not supported.')
-
+        file_path = url_path_join(dir_path, filename)
+        with urllib.request.urlopen(file_url) as response, open(file_path, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)

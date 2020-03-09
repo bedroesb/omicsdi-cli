@@ -1,9 +1,25 @@
 import click
-from omics_client import OmcicsClient
+from omics_client import OmcicsClient, url_path_join
 import os
+from urllib.parse import urlsplit
+import shutil
 
 client = OmcicsClient()
 
+
+def make_dir(output, acc_number):
+
+    if output:
+        dir_path = url_path_join(output, acc_number)
+    else:
+        dir_path = acc_number
+
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path)
+    
+    os.makedirs(dir_path)
+
+    return dir_path
 
 def source_from_id(acc):
     api_output = client.get_source(acc)
@@ -11,19 +27,43 @@ def source_from_id(acc):
     return source
 
 
-def ftp_links(source, acc):
+def file_links(source, acc):
     api_output = client.get_data(source, acc)
-    ftp = []
+    file_links = []
     if api_output['file_versions']:
         files = api_output['file_versions'][0]['files']
-        for ext, file_links in files.items():
-            for file_link in file_links:
-                ftp.append(file_link)
-        
+        for ext, files in files.items():
+            for url in files:
+                file_links.append(url)
+
     else:
         print('This accession contains no files.')
 
-    return ftp
+    return file_links
+
+
+def url_info(url):
+    if not '://' in url:
+        if url.startswith('ftp.'):
+            url = 'ftp://' + url
+        else:
+            url = 'https://' + url
+    url = url.strip('/')
+    split_url = urlsplit(url)
+    project_dir = "".join(split_url.path.rpartition("/")[:-1])
+    domain = split_url.hostname
+    scheme = split_url.scheme
+    filename = url.split('/')[-1]
+
+    return {'project_dir': project_dir, 'domain': domain, 'scheme': scheme, 'filename': filename}
+
+
+def filename_process(filename):
+    if 'filename=' in filename:
+        return filename.split('filename=')[1]
+    else:
+        return filename
+
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('acc_number')
@@ -47,12 +87,28 @@ def main(acc_number, download, output):
     """
 
     source = source_from_id(acc_number)
-    ftps = ftp_links(source, acc_number)
+    file_urls = file_links(source, acc_number)
 
-    if download and ftps:
-        client.download_files(ftps[0], output, acc_number)
+    # Download section
+    if download and file_urls:
+        dir_path = make_dir(output, acc_number)
+        
+        for file_url in file_urls:
+            info = url_info(file_url)
+
+            if info['scheme'] == 'ftp':
+                client.download_ftp_files(
+                    info['domain'], info['project_dir'], dir_path, info['filename'])
+            elif info['scheme'] == 'https' or info['scheme'] == 'http':
+                info = url_info(file_url)
+                client.download_http_files(
+                        file_url, filename_process(info['filename']), dir_path)
+                print("Downloading...  " + filename_process(info['filename']))
+            else:
+                print('Scheme is not supported for ' + file_url)
+    # DEFAULT: Printing URLS when -d is not given
     else:
-        pretty = '\n'.join(ftps)
+        pretty = '\n'.join(file_urls)
         print(pretty)
 
 
