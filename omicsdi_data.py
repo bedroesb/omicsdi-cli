@@ -14,13 +14,16 @@ def source_from_id(acc):
 def ftp_links(source, acc):
     api_output = client.get_data(source, acc)
     ftp = []
-    files = api_output['file_versions'][0]['files']
+    if api_output['file_versions']:
+        files = api_output['file_versions'][0]['files']
+        for ext, file_links in files.items():
+            for file_link in file_links:
+                ftp.append(file_link)
+        
+    else:
+        print('This accession contains no files.')
 
-    for ext, file_links in files.items():
-        for file_link in file_links:
-            ftp.append(file_link)
     return ftp
-
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('acc_number')
@@ -46,7 +49,7 @@ def main(acc_number, download, output):
     source = source_from_id(acc_number)
     ftps = ftp_links(source, acc_number)
 
-    if download:
+    if download and ftps:
         client.download_files(ftps[0], output, acc_number)
     else:
         pretty = '\n'.join(ftps)
