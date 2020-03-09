@@ -57,20 +57,23 @@ class OmcicsClient:
                 ftp.login()
                 ftp.cwd(project_dir)
                 files = ftp.nlst()
-                print("Downloading...  " + filename)
                 file_path = url_path_join(dir_path, filename)
                 localfile = open(file_path, 'wb')
                 ftp.retrbinary(
                     "RETR " + filename, localfile.write)
                 localfile.close()
 
-
             except ftplib.all_errors as e:
-                print('FTP error:', e)
-        
+                print('--> FTP error:', e)
+
     def download_http_files(self, file_url, filename, dir_path):
         """Download http files in given directory"""
-        
+
         file_path = url_path_join(dir_path, filename)
-        with urllib.request.urlopen(file_url) as response, open(file_path, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
+        try:
+            with urllib.request.urlopen(file_url) as response, open(file_path, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+
+        except urllib.request.HTTPError as e:
+            print('-->', e)
+            print('--> Please check if ' + file_url + 'is reachable.')
