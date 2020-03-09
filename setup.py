@@ -5,8 +5,8 @@ with open("README.md", 'r') as f:
 
 setup(
     name='OmicsDi_fetcher',
-    version='0.1',
-    description='A little OmicsDi data fetcher tool',
+    version='1.0',
+    description='Command Line Interface to fetch data from OmicsDi',
     long_description=long_description,
     author='Bert Droesbeke',
     author_email='bedro@psb.ugent.be',

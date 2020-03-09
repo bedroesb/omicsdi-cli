@@ -16,10 +16,11 @@ def make_dir(output, acc_number):
 
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)
-    
+
     os.makedirs(dir_path)
 
     return dir_path
+
 
 def source_from_id(acc):
     api_output = client.get_source(acc)
@@ -65,7 +66,14 @@ def filename_process(filename):
         return filename
 
 
+def print_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo('Version 1.0')
+    ctx.exit()
+
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option('--version', '-v',  callback=print_version, expose_value=False, is_flag=True, help="Print version number")
 @click.argument('acc_number')
 @click.option(
     '--download', '-d',  is_flag=True,
@@ -75,16 +83,21 @@ def filename_process(filename):
     '--output', '-o',  default=None,  type=click.Path(exists=True),
     help='Output file (default: stdout)',
 )
-def main(acc_number, download, output):
+
+def main(acc_number, download, output, version):
     """
-\b
-   ___        _       ___  _     ___ _    ___ 
-  / _ \ _ __ (_)__ __|   \(_)   / __| |  |_ _|
- | (_) | '  \| / _(_-< |) | |  | (__| |__ | | 
-  \___/|_|_|_|_\__/__/___/|_|   \___|____|___|                                           
+\b                                                     
+   ___        _       ___  _    __     _      _            
+  / _ \ _ __ (_)__ __|   \(_)  / _|___| |_ __| |_  ___ _ _ 
+ | (_) | '  \| / _(_-< |) | | |  _/ -_)  _/ _| ' \/ -_) '_|
+  \___/|_|_|_|_\__/__/___/|_| |_| \___|\__\__|_||_\___|_|                                                                                            
 \b                                                   
-    A little OmicsDi data fetcher tool.
+    Command Line Interface to fetch data from OmicsDi.
     """
+
+    if version:
+        logging.info("This is OmicsDi fetcher v1.0")
+    pass
 
     source = source_from_id(acc_number)
     file_urls = file_links(source, acc_number)
@@ -92,7 +105,6 @@ def main(acc_number, download, output):
     # Download section
     if download and file_urls:
         dir_path = make_dir(output, acc_number)
-        
         for file_url in file_urls:
             info = url_info(file_url)
             print("Downloading...  " + filename_process(info['filename']))
@@ -102,8 +114,7 @@ def main(acc_number, download, output):
             elif info['scheme'] == 'https' or info['scheme'] == 'http':
                 info = url_info(file_url)
                 client.download_http_files(
-                        file_url, filename_process(info['filename']), dir_path)
- 
+                    file_url, filename_process(info['filename']), dir_path)
             else:
                 print('--> Scheme is not supported for ' + file_url)
     # DEFAULT: Printing URLS when -d is not given
