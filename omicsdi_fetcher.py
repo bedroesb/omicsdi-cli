@@ -69,7 +69,7 @@ def filename_process(filename):
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo('Version 1.0')
+    click.echo('Version 0.1')
     ctx.exit()
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
