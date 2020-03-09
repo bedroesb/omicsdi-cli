@@ -77,11 +77,11 @@ def print_version(ctx, param, value):
 @click.argument('acc_number')
 @click.option(
     '--download', '-d',  is_flag=True,
-    help='Use this flag to download the files in the current directory',
+    help='Use this flag to download the files in the current directory or a specified output directory',
 )
 @click.option(
     '--output', '-o',  default=None,  type=click.Path(exists=True),
-    help='Output file (default: stdout)',
+    help='Output directory when downloading files (default: CWD)',
 )
 
 def main(acc_number, download, output):
