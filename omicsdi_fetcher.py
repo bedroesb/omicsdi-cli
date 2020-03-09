@@ -73,7 +73,7 @@ def print_version(ctx, param, value):
     ctx.exit()
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--version', '-v',  callback=print_version, expose_value=False, is_flag=True, help="Print version number")
+@click.option('--version', '-v',  callback=print_version, expose_value=False, is_eager=True, is_flag=True, help="Print version number")
 @click.argument('acc_number')
 @click.option(
     '--download', '-d',  is_flag=True,
@@ -84,7 +84,7 @@ def print_version(ctx, param, value):
     help='Output file (default: stdout)',
 )
 
-def main(acc_number, download, output, version):
+def main(acc_number, download, output):
     """
 \b                                                     
    ___        _       ___  _    __     _      _            
@@ -94,10 +94,6 @@ def main(acc_number, download, output, version):
 \b                                                   
     Command Line Interface to fetch data from OmicsDi.
     """
-
-    if version:
-        logging.info("This is OmicsDi fetcher v1.0")
-    pass
 
     source = source_from_id(acc_number)
     file_urls = file_links(source, acc_number)
