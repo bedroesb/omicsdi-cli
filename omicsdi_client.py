@@ -8,6 +8,7 @@ import time
 import re
 import os
 import shutil
+import click
 
 
 def url_path_join(*args):
@@ -23,7 +24,7 @@ class OmcicsClient:
     def get_source(self, acc_numb):
         """"Get source from Id"""
 
-        return self.fetch_object(f'/ws/dataset//search?query={acc_numb}')
+        return self.fetch_object(f'/ws/dataset//search?query={acc_numb}&sortfield=id')
 
     def get_data(self, source, acc_numb):
         """"Get ftp links from Id"""
@@ -45,7 +46,7 @@ class OmcicsClient:
             time.sleep(5)
             r = requests.get(url)
         elif r.status_code != requests.codes.ok:
-            print("problem with request: " + str(r))
+            click.echo("problem with request: " + str(r))
             raise RuntimeError("Non-200 status code")
         return r.json()
 
@@ -56,7 +57,6 @@ class OmcicsClient:
             try:
                 ftp.login()
                 ftp.cwd(project_dir)
-                files = ftp.nlst()
                 file_path = url_path_join(dir_path, filename)
                 localfile = open(file_path, 'wb')
                 ftp.retrbinary(
@@ -64,8 +64,8 @@ class OmcicsClient:
                 localfile.close()
 
             except ftplib.all_errors as e:
-                print('--> FTP error:', e)
-                print('--> Please check if ' + filename +
+                click.echo('--> FTP error:', e)
+                click.echo('--> Please check if ' + filename +
                       ' exists in ' + project_dir + ' on the domain ' + domain)
 
     def download_http_files(self, file_url, filename, dir_path):
@@ -77,5 +77,5 @@ class OmcicsClient:
                 shutil.copyfileobj(response, out_file)
 
         except urllib.request.HTTPError as e:
-            print('-->', e)
-            print('--> Please check if ' + file_url + ' is reachable.')
+            click.echo('-->', e)
+            click.echo('--> Please check if ' + file_url + ' is reachable.')

@@ -103,7 +103,7 @@ def main(acc_number, download, output):
         dir_path = make_dir(output, acc_number)
         for file_url in file_urls:
             info = url_info(file_url)
-            print("Downloading...  " + filename_process(info['filename']))
+            click.echo("Downloading...  " + filename_process(info['filename']))
             if info['scheme'] == 'ftp':
                 client.download_ftp_files(
                     info['domain'], info['project_dir'], dir_path, info['filename'])
@@ -112,11 +112,11 @@ def main(acc_number, download, output):
                 client.download_http_files(
                     file_url, filename_process(info['filename']), dir_path)
             else:
-                print('--> Scheme is not supported for ' + file_url)
+                click.echo('--> Scheme is not supported for ' + file_url)
     # DEFAULT: Printing URLS when -d is not given
     else:
         pretty = '\n'.join(file_urls)
-        print(pretty)
+        click.echo(pretty)
 
 
 if __name__ == "__main__":
