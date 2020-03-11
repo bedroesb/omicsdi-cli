@@ -28,13 +28,13 @@ def source_from_id(acc):
     if api_output['datasets']:
         if len(api_output['datasets']) > 1:
             click.echo('Not a unique ID, more than one hit.')
-            sys.exit(1)
+            sys.exit()
         else:
             source = api_output['datasets'][0]['source']
             return source
     else:
         click.echo('No hits')
-        sys.exit(1)
+        sys.exit()
 
 
 
@@ -49,7 +49,7 @@ def file_links(source, acc):
 
     else:
         click.echo('This accession contains no files.')
-        sys.exit(1)
+        sys.exit()
 
     return file_links
 
