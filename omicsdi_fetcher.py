@@ -3,6 +3,7 @@ from omicsdi_client import OmcicsClient, url_path_join
 import os
 from urllib.parse import urlsplit
 import shutil
+import sys
 
 client = OmcicsClient()
 
@@ -120,4 +121,7 @@ def main(acc_number, download, output):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        sys.exit(1)

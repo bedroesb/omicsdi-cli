@@ -9,4 +9,5 @@ install:
   - python3 -m pip install .
 # command to run tests
 script:
-  - pytest
+  - |
+    echo 'test'
