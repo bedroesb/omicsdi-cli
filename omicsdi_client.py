@@ -9,6 +9,7 @@ import re
 import os
 import shutil
 import click
+import sys
 
 
 def url_path_join(*args):

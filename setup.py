@@ -19,7 +19,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent"
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     entry_points={
         "console_scripts": [
             "omicsdi_fetcher = omicsdi_fetcher:main"
