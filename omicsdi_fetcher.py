@@ -25,8 +25,17 @@ def make_dir(output, acc_number):
 
 def source_from_id(acc):
     api_output = client.get_source(acc)
-    source = api_output['datasets'][0]['source']
-    return source
+    if api_output['datasets']:
+        if len(api_output['datasets']) > 1:
+            click.echo('Not a unique ID, more than one hit.')
+            sys.exit(1)
+        else:
+            source = api_output['datasets'][0]['source']
+            return source
+    else:
+        click.echo('No hits')
+        sys.exit(1)
+
 
 
 def file_links(source, acc):
@@ -39,7 +48,8 @@ def file_links(source, acc):
                 file_links.append(url)
 
     else:
-        print('This accession contains no files.')
+        click.echo('This accession contains no files.')
+        sys.exit(1)
 
     return file_links
 
@@ -121,7 +131,4 @@ def main(acc_number, download, output):
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        sys.exit(1)
+    main()
