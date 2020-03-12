@@ -27,8 +27,17 @@ def source_from_id(acc):
     api_output = client.get_source(acc)
     if api_output['datasets']:
         if len(api_output['datasets']) > 1:
-            click.echo('Not a unique ID, more than one hit.')
-            sys.exit()
+            hits = []
+            for dataset in api_output['datasets']:
+                if dataset['id'] == acc:
+                    hits.append(dataset)
+            
+            if len(hits) == 1:
+                source = hits[0]['source']
+                return source
+            else:
+                click.echo('Not a unique ID, more than one hit.')
+                sys.exit()
         else:
             source = api_output['datasets'][0]['source']
             return source
