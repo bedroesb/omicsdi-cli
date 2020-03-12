@@ -46,10 +46,13 @@ class OmcicsClient:
         if r.status_code == 500:
             time.sleep(5)
             r = requests.get(url)
-        elif r.status_code != requests.codes.ok:
+        
+        if r.status_code != requests.codes.ok:
             click.echo("problem with request: " + str(r))
             raise RuntimeError("Non-200 status code")
-        return r.json()
+        
+        else:
+            return r.json()
 
     def download_ftp_files(self, domain, project_dir, dir_path, filename):
         """Download ftp files in given directory"""
@@ -79,4 +82,4 @@ class OmcicsClient:
 
         except urllib.request.HTTPError as e:
             click.echo('-->', e)
-            click.echo('--> Please check if ' + file_url + ' is reachable.')
+            click.echo('--> Please check if ' + file_url + ' is reachable')
