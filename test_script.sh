@@ -1,9 +1,9 @@
 #! /bin/bash
 
-
+echo 'test'
 # omicsdi_fetcher
 # omicsdi_fetcher -v
-omicsdi_fetcher -h
+# omicsdi_fetcher -h
 # omicsdi_fetcher uerbfebr
 # omicsdi_fetcher E-GEOD-4
 # omicsdi_fetcher E-MTAB-5612
