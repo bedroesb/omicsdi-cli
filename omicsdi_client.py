@@ -42,11 +42,7 @@ class OmcicsClient:
         session.mount('http://', adapter)
         session.mount('https://', adapter)
         r = session.get(url)
-        # Covering internal server errors by retrying one more time
-        if r.status_code == 500:
-            time.sleep(5)
-            r = requests.get(url)
-        
+
         if r.status_code != requests.codes.ok:
             click.echo("problem with request: " + str(r))
             raise RuntimeError("Non-200 status code")
@@ -77,8 +73,20 @@ class OmcicsClient:
 
         file_path = url_path_join(dir_path, filename)
         try:
-            with urllib.request.urlopen(file_url) as response, open(file_path, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)
+            session = requests.Session()
+            retry = Retry(connect=3, backoff_factor=15)
+            adapter = HTTPAdapter(max_retries=retry)
+            session.mount('http://', adapter)
+            session.mount('https://', adapter)
+            r = session.get(file_url)
+
+            if r.status_code != requests.codes.ok:
+                click.echo('--> ERROR Response ' + str(r.status_code) + ', reason: ' + str(r.reason))
+                click.echo('--> Please check if ' + file_url + ' is reachable')
+
+            else:
+                with urllib.request.urlopen(file_url) as response, open(file_path, 'wb') as out_file:
+                    shutil.copyfileobj(response, out_file)
 
         except urllib.request.HTTPError as e:
             click.echo('-->', e)
