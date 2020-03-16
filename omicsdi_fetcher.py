@@ -27,15 +27,25 @@ def source_from_id(acc):
     api_output = client.get_source(acc)
     if api_output['datasets']:
         if len(api_output['datasets']) > 1:
-            click.echo('Not a unique ID, more than one hit.')
-            sys.exit()
+            hits = []
+            for dataset in api_output['datasets']:
+                if dataset['id'] == acc:
+                    hits.append(dataset)
+
+            if len(hits) == 1:
+                source = hits[0]['source']
+                return source
+            else:
+                click.echo('INFO')
+                click.echo(f'{acc} is not a unique ID, leading to multiple hits.')
+                sys.exit()
         else:
             source = api_output['datasets'][0]['source']
             return source
     else:
-        click.echo('No hits')
+        click.echo('INFO')
+        click.echo(f'{acc} could not be found in one of the repositories.')
         sys.exit()
-
 
 
 def file_links(source, acc):
@@ -48,7 +58,8 @@ def file_links(source, acc):
                 file_links.append(url)
 
     else:
-        click.echo('This accession contains no files.')
+        click.echo('INFO')
+        click.echo(f'The accession {acc} is found in the {source} database, but contains no files.')
         sys.exit()
 
     return file_links
@@ -83,6 +94,7 @@ def print_version(ctx, param, value):
     click.echo('Version 0.1')
     ctx.exit()
 
+
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--version', '-v',  callback=print_version, expose_value=False, is_eager=True, is_flag=True, help="Print version number")
 @click.argument('acc_number')
@@ -94,7 +106,6 @@ def print_version(ctx, param, value):
     '--output', '-o',  default=None,  type=click.Path(exists=True),
     help='Output directory when downloading files (default: CWD)',
 )
-
 def main(acc_number, download, output):
     """
 \b                                                     
