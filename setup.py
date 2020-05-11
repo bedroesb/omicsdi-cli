@@ -9,9 +9,12 @@ with open('requirements.txt') as f:
 setup(
     name='OmicsDi_fetcher',
     version='0.1',
+    keywords=["pip", "omicsDI", "cli"],
     description='Command Line Interface to fetch data from OmicsDi',
+    long_description_content_type='text/markdown',
     long_description=long_description,
     author='Bert Droesbeke',
+    url="https://github.com/bedroesb/omicsdi-cli",
     author_email='bedro@psb.ugent.be',
     packages=['.'],
     install_requires=[required],
